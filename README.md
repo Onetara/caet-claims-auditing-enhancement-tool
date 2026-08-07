@@ -34,7 +34,7 @@
 
 ## Full Methodology
 
-[View full methodology](docs/CAET_Methodology.txt)
+[View full methodology](docs/caet_data_visualization_outline_v1.0.md)
 
 ---
 
