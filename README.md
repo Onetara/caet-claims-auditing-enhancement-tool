@@ -12,15 +12,15 @@
 
 ## Featured Visuals
 
-![H1 Tier Distribution](visuals/viz_01_h1_tier_distribution.png)
+![H1 Tier Distribution](visuals/viz_01_python.png)
 
-![Before vs After Member Calls](visuals/viz_03_h1_call_impact.png)
+![Before vs After Member Calls](visuals/viz_03_Python.png)
 
-![Top 20 Highest-Risk Providers](visuals/viz_04_h1_top20_providers.png)
+![Top 20 Highest-Risk Providers](visuals/viz_04_Python.png)
 
-![Geographic Risk Heatmap](visuals/viz_05_h1_state_heatmap.png)
+![Geographic Risk Heatmap](visuals/viz_05_Python.png)
 
-![H2 Catheter Tier Distribution](visuals/viz_07_h2_tier_distribution.png)
+![H2 Catheter Tier Distribution](visuals/viz_07_Python.png)
 
 ## Dashboard
 
