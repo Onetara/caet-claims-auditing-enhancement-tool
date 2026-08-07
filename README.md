@@ -27,10 +27,10 @@
 [View Dashboard (PDF)](dashboard/CAET_PowerBI_visual.pdf)
 
 ## Repo Structure
-/src — source code
-/visuals — chart PNGs
-/dashboard — Power BI PDF export
-/docs — methodology and supporting docs
+- `/src` — source code
+- `/visuals` — chart PNGs
+- `/dashboard` — Power BI PDF export
+- `/docs` — methodology and supporting docs
 
 ## Full Methodology
 
