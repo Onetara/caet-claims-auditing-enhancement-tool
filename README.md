@@ -38,4 +38,4 @@
 
 ---
 
-**Author:** Dr. Stacy Lisa Toriola, MD, MSc.
+**Author:** Dr. S. L. Toriola, MD, MSc.
