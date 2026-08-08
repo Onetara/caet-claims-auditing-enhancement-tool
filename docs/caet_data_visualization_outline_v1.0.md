@@ -88,4 +88,4 @@ References
 
 Centers for Medicare & Medicaid Services. (2023). Medicare durable
     medical equipment, devices & supplies by referring provider and
-    service [Data set]. U.S. Department of Health and Human Services.
+    service [(CMS) 2023 DME Supplier/Provider dataset]. U.S. Department of Health and Human Services.
