@@ -1,0 +1,11 @@
+# Data files (too large / not needed for the repo)
+*.csv
+*.zip
+*.pbix
+
+# Python
+__pycache__/
+*.pyc
+
+# Cleanup folders from local sync
+_to_delete/
