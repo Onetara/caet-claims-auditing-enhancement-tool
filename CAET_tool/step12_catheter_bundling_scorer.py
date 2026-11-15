@@ -3,10 +3,12 @@
 # Requires: dme_with_signals.csv, catheter_candidates.csv
 
 import pandas as pd
+from pathlib import Path
+BASE_DIR = Path(__file__).resolve().parent
 
 # ── LOAD ────────────────────────────────────────────────────────────
-df              = pd.read_csv("dme_with_signals.csv")
-candidates      = pd.read_csv("catheter_candidates.csv")
+df              = pd.read_csv(str(BASE_DIR / "dme_with_signals.csv"))
+candidates      = pd.read_csv(str(BASE_DIR / "catheter_candidates.csv"))
 candidate_npis  = candidates["Suplr_NPI"].unique()
 
 # ── HCPCS CODE GROUPS ────────────────────────────────────────────────
@@ -95,5 +97,5 @@ print(f"\n=== TOP 10 HIGHEST BUNDLING SCORES ===")
 print(results_df.head(10).to_string(index=False))
 
 # ── SAVE ─────────────────────────────────────────────────────────────
-results_df.to_csv("catheter_bundling_scores.csv", index=False)
+results_df.to_csv(str(BASE_DIR / "catheter_bundling_scores.csv"), index=False)
 print("\nSaved: catheter_bundling_scores.csv")

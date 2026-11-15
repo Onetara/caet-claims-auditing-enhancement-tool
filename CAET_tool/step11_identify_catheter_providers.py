@@ -3,9 +3,11 @@
 # Requires: dme_with_signals.csv
 
 import pandas as pd
+from pathlib import Path
+BASE_DIR = Path(__file__).resolve().parent
 
 # ── LOAD ────────────────────────────────────────────────────────────
-df = pd.read_csv("dme_with_signals.csv")
+df = pd.read_csv(str(BASE_DIR / "dme_with_signals.csv"))
 
 # ── FILTER TO CATHETER CODES ONLY ───────────────────────────────────
 catheter_df = df[df["fraud_hcpcs_cat"] == "CATHETER"]
@@ -31,5 +33,5 @@ print(f"\nProviders billing 8+ catheter codes: {len(catheter_candidates):,}")
 print(catheter_candidates.sort_values("distinct_catheter_codes", ascending=False))
 
 # ── SAVE ─────────────────────────────────────────────────────────────
-catheter_candidates.to_csv("catheter_candidates.csv", index=False)
+catheter_candidates.to_csv(str(BASE_DIR / "catheter_candidates.csv"), index=False)
 print("\nSaved: catheter_candidates.csv")

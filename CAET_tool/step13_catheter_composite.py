@@ -3,10 +3,12 @@
 # Requires: dme_with_signals.csv, catheter_bundling_scores.csv
 
 import pandas as pd
+from pathlib import Path
+BASE_DIR = Path(__file__).resolve().parent
 
 # ── LOAD ────────────────────────────────────────────────────────────
-df             = pd.read_csv("dme_with_signals.csv")
-bundling_df    = pd.read_csv("catheter_bundling_scores.csv")
+df             = pd.read_csv(str(BASE_DIR / "dme_with_signals.csv"))
+bundling_df    = pd.read_csv(str(BASE_DIR / "catheter_bundling_scores.csv"))
 candidate_npis = bundling_df["npi"].unique()
 
 HIGH_RISK_CATHETER_STATES = ["OK", "FL", "NY", "TX", "GA"]
@@ -123,5 +125,5 @@ print("\n=== TOP 10 HIGHEST RISK CATHETER PROVIDERS ===")
 print(results_df.head(10).to_string(index=False))
 
 # ── SAVE ─────────────────────────────────────────────────────────────
-results_df.to_csv("catheter_composite_scores.csv", index=False)
+results_df.to_csv(str(BASE_DIR / "catheter_composite_scores.csv"), index=False)
 print("\nSaved: catheter_composite_scores.csv")

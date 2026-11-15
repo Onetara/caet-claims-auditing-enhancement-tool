@@ -6,7 +6,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from pathlib import Path
-BASE_DIR = Path(__file__).resolve().parent  # .../data _visualization
+BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = BASE_DIR.parent  # project root, holds the shared CSVs
 
 # ── LOAD ─────────────────────────────────────────────────────────────

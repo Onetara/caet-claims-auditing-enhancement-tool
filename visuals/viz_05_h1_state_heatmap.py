@@ -6,7 +6,7 @@ import pandas as pd
 import plotly.express as px
 
 from pathlib import Path
-BASE_DIR = Path(__file__).resolve().parent  # .../data _visualization
+BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = BASE_DIR.parent  # project root, holds the shared CSVs
 
 # ── LOAD ─────────────────────────────────────────────────────────────
