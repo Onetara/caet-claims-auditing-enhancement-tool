@@ -20,7 +20,7 @@ colors = ["green", "yellow", "orange", "red"]
 
 plt.figure(figsize=(8, 5))
 plt.bar(tier_counts.index, tier_counts.values, color=colors, edgecolor="black")
-plt.title("H1 General DME — Provider Risk Tier Distribution", fontsize=14, fontweight="bold")
+plt.title("H1 General DME: Provider Risk Tier Distribution", fontsize=14, fontweight="bold")
 plt.xlabel("Risk Tier")
 plt.ylabel("Number of Providers")
 

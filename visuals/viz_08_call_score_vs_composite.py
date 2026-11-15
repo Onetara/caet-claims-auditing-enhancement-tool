@@ -1,5 +1,5 @@
 # viz_08_call_score_vs_composite.py
-# Member Call Score vs Composite Score — Scatter Plot
+# Member Call Score vs Composite Score: Scatter Plot
 # Input: h1_with_calls.csv
 
 import pandas as pd

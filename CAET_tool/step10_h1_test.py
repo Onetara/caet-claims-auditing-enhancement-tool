@@ -1,5 +1,5 @@
 # step10_h1_test.py
-# H1 Test — General DME Fraud Detection
+# H1 Test: General DME Fraud Detection
 
 import pandas as pd
 
@@ -45,7 +45,7 @@ print(f"Hit Rate         : {hit_rate:.1%}")
 if hit_rate >= 0.70:
     print("H1 PASSED")
 else:
-    print("H1 FAILED — review scorer weights")
+    print("H1 FAILED: review scorer weights")
 
 # ── SAVE ─────────────────────────────────────────────────────────────
 results_df.to_csv(str(BASE_DIR / "h1_test_results.csv"), index=False)

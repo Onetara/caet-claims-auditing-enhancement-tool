@@ -77,7 +77,7 @@ for npi in candidate_npis:
     v_score = volume_score(provider_rows)
     u_score = upcoding_score(provider_rows)
     g_score = geo_score(provider_rows)
-    m_score = 0.0    # no member calls applied — baseline only
+    m_score = 0.0    # no member calls applied, baseline only
 
     composite = (
         (b_score * WEIGHTS["catheter_bundling"]) +
@@ -87,7 +87,7 @@ for npi in candidate_npis:
         (g_score * WEIGHTS["geographic"])
     )
 
-    # Override floor rule — see Step 14 in outline
+    # Override floor rule: see Step 14 in outline
     flags = str(bundling_row["flags"].values[0])
     if ("EXTREME_CATHETER_BUNDLING" in flags) and (g_score >= 30):
         composite = max(composite, 65.0)

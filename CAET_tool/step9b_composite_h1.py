@@ -11,25 +11,23 @@ df = pd.read_csv(str(BASE_DIR / "dme_with_signals.csv"))
 # ============================================================
 
 # --- UPCODING SCORER (Step 5) ---
+def tiered_points(ratio, p90, p99, weight):
+    # 100 points at the 99th percentile cutoff, 60 at the 90th, else 0, scaled by weight
+    if pd.isna(ratio): return 0
+    if ratio >= p99: base = 100
+    elif ratio >= p90: base = 60
+    else: base = 0
+    return base * weight
+
 CHARGE_90, CHARGE_99 = 11.50, 29.78
 def upcoding_score(row):
-    ratio = row["charge_to_allowed_ratio"]
-    if pd.isna(ratio): return 0
-    if ratio >= CHARGE_99: base = 100
-    elif ratio >= CHARGE_90: base = 60
-    else: base = 0
-    return base * row["category_risk_weight"]
+    return tiered_points(row["charge_to_allowed_ratio"], CHARGE_90, CHARGE_99, row["category_risk_weight"])
 df["upcoding_score"] = df.apply(upcoding_score, axis=1)
 
 # --- VOLUME SCORER (Step 6) ---
 CLAIMS_90, CLAIMS_99 = 5.67, 8.80
 def volume_score(row):
-    ratio = row["claims_per_bene"]
-    if pd.isna(ratio): return 0
-    if ratio >= CLAIMS_99: base = 100
-    elif ratio >= CLAIMS_90: base = 60
-    else: base = 0
-    return base * row["category_risk_weight"]
+    return tiered_points(row["claims_per_bene"], CLAIMS_90, CLAIMS_99, row["category_risk_weight"])
 df["volume_score"] = df.apply(volume_score, axis=1)
 
 # --- GEOGRAPHIC SCORER (Step 7) ---
@@ -54,7 +52,7 @@ def geo_score(row):
     return min(points, 100)
 df["geo_score"] = df.apply(geo_score, axis=1)
 
-# --- MEMBER CALL SCORER (Step 8 — PLACEHOLDER, all zeros) ---
+# --- MEMBER CALL SCORER (Step 8: PLACEHOLDER, all zeros) ---
 df["member_call_score"] = 0
 
 # --- RENTAL ABUSE SCORER (Step 9a) ---
@@ -70,15 +68,11 @@ df = df.merge(prov_rental[["Suplr_NPI", "rental_ratio"]], on="Suplr_NPI", how="l
 
 def rental_score(row):
     if not row["is_rental"]: return 0
-    ratio = row["rental_ratio"]
-    if ratio >= rental_99: base = 100
-    elif ratio >= rental_90: base = 60
-    else: base = 0
-    return base * row["category_risk_weight"]
+    return tiered_points(row["rental_ratio"], rental_90, rental_99, row["category_risk_weight"])
 df["rental_score"] = df.apply(rental_score, axis=1)
 
 # ============================================================
-# STEP 9b — AGGREGATE TO PROVIDER LEVEL + COMPOSITE
+# STEP 9b: AGGREGATE TO PROVIDER LEVEL + COMPOSITE
 # ============================================================
 
 # Roll up row-level scores to provider-level (take MAX = worst case per provider)

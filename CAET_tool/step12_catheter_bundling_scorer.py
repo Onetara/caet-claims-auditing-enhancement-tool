@@ -25,7 +25,7 @@ def catheter_bundling_scorer(provider_rows):
     billed_codes = set(cath_rows["HCPCS_Cd"].dropna().unique())
     code_count   = len(billed_codes)
 
-    # Signal 1 — Kitchen Sink Bundling
+    # Signal 1: Kitchen Sink Bundling
     if code_count >= 14:
         score += 55
         flags.append(f"EXTREME_CATHETER_BUNDLING: {code_count} codes")
@@ -36,12 +36,12 @@ def catheter_bundling_scorer(provider_rows):
         score += 15
         flags.append(f"ELEVATED_CATHETER_BUNDLING: {code_count} codes")
 
-    # Signal 2 — Straight + Coude Simultaneous Billing
+    # Signal 2: Straight + Coude Simultaneous Billing
     if "A4351" in billed_codes and "A4352" in billed_codes:
         score += 30
         flags.append("DUAL_CATHETER_TYPE: A4351 + A4352 billed together")
 
-    # Signal 3 — Accessories Without Primary Code
+    # Signal 3: Accessories Without Primary Code
     has_primary   = bool(billed_codes & PRIMARY_CODES)
     has_accessory = bool(billed_codes & ACCESSORY_CODES)
 
@@ -50,7 +50,7 @@ def catheter_bundling_scorer(provider_rows):
         score  += 25
         flags.append(f"ORPHAN_ACCESSORIES: {orphans} billed without primary")
 
-    # Signal 4 — Oklahoma Anomaly
+    # Signal 4: Oklahoma Anomaly
     if len(provider_rows) > 0:
         state           = provider_rows["Suplr_Prvdr_State_Abrvtn"].iloc[0]
         total_cath_clms = cath_rows["Tot_Suplr_Clms"].sum()

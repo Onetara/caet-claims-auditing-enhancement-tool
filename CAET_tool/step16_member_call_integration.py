@@ -13,7 +13,7 @@ BASE_DIR = Path(__file__).resolve().parent
 # In production this file would come from the real call center database
 
 simulated_calls = [
-    # Original demo — general DME provider
+    # Original demo: general DME provider
     {"call_id": "CALL-2024-001", "member_id": "MBR-9900123", "provider_npi": 1003000399,
      "call_reason_code": "NEVER_RECEIVED_VALIDATED", "call_timestamp": "2024-06-15 14:32:00"},
     {"call_id": "CALL-2024-002", "member_id": "MBR-9900456", "provider_npi": 1003000399,
@@ -21,7 +21,7 @@ simulated_calls = [
     {"call_id": "CALL-2024-003", "member_id": "MBR-9900789", "provider_npi": 1003000399,
      "call_reason_code": "NO_CONSENT_VALIDATED", "call_timestamp": "2024-06-25 09:45:00"},
  
-    # High-severity group — 180 Medical Inc (first 3 of 5 calls)
+    # High-severity group: 180 Medical Inc (first 3 of 5 calls)
     {"call_id": "CALL-2024-004", "member_id": "MBR-4401987", "provider_npi": 1639160708,
      "call_reason_code": "NO_DIAGNOSIS_MATCH_VALIDATED", "call_timestamp": "2024-08-02 10:15:00"},
     {"call_id": "CALL-2024-005", "member_id": "MBR-4407741", "provider_npi": 1639160708,
@@ -51,13 +51,13 @@ simulated_calls = [
     {"call_id": "CALL-2024-015", "member_id": "MBR-5503003", "provider_npi": 1124201629,
      "call_reason_code": "NEVER_RECEIVED_VALIDATED", "call_timestamp": "2024-09-09 09:00:00"},
  
-    # High-severity group — 180 Medical Inc (remaining 2 of 5 calls)
+    # High-severity group: 180 Medical Inc (remaining 2 of 5 calls)
     {"call_id": "CALL-2024-016", "member_id": "MBR-4409500", "provider_npi": 1639160708,
      "call_reason_code": "NO_CONSENT_VALIDATED", "call_timestamp": "2024-09-10 09:00:00"},
     {"call_id": "CALL-2024-017", "member_id": "MBR-4409600", "provider_npi": 1639160708,
      "call_reason_code": "NEVER_RECEIVED_VALIDATED", "call_timestamp": "2024-09-11 09:00:00"},
  
-    # High-severity group — Byram Healthcare Centers (GA), 5 calls
+    # High-severity group: Byram Healthcare Centers (GA), 5 calls
     {"call_id": "CALL-2024-018", "member_id": "MBR-5504001", "provider_npi": 1023063641,
      "call_reason_code": "NO_DIAGNOSIS_MATCH_VALIDATED", "call_timestamp": "2024-09-12 09:00:00"},
     {"call_id": "CALL-2024-019", "member_id": "MBR-5504002", "provider_npi": 1023063641,
@@ -69,7 +69,7 @@ simulated_calls = [
     {"call_id": "CALL-2024-022", "member_id": "MBR-5504005", "provider_npi": 1023063641,
      "call_reason_code": "RENTAL_NOT_RETURNED_VALIDATED", "call_timestamp": "2024-09-16 09:00:00"},
  
-    # High-severity group — Degc Enterprises, 5 calls
+    # High-severity group: Degc Enterprises, 5 calls
     {"call_id": "CALL-2024-023", "member_id": "MBR-5505001", "provider_npi": 1295827780,
      "call_reason_code": "NO_DIAGNOSIS_MATCH_VALIDATED", "call_timestamp": "2024-09-17 09:00:00"},
     {"call_id": "CALL-2024-024", "member_id": "MBR-5505002", "provider_npi": 1295827780,

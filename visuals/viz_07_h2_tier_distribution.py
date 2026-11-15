@@ -1,5 +1,5 @@
 # viz_07_h2_tier_distribution.py
-# Catheter H2 Test Sample — Tier Distribution
+# Catheter H2 Test Sample: Tier Distribution
 # Input: h2_test_results.csv
 
 import pandas as pd
@@ -32,7 +32,7 @@ plt.pie(
 hit_rate = (df["tier"].isin(["HIGH", "CRITICAL"]).sum()) / len(df)
 
 plt.title(
-    f"H2 Catheter Test Results — Tier Distribution\nHit Rate: {hit_rate:.0%}  (Threshold: 75%)",
+    f"H2 Catheter Test Results: Tier Distribution\nHit Rate: {hit_rate:.0%}  (Threshold: 75%)",
     fontsize=13, fontweight="bold"
 )
 

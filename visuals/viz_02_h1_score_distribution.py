@@ -20,7 +20,7 @@ plt.axvline(40, color="yellow", linestyle="--", linewidth=2, label="MEDIUM thres
 plt.axvline(60, color="orange", linestyle="--", linewidth=2, label="HIGH threshold (60)")
 plt.axvline(80, color="red", linestyle="--", linewidth=2, label="CRITICAL threshold (80)")
 
-plt.title("H1 General DME — Composite Score Distribution", fontsize=14, fontweight="bold")
+plt.title("H1 General DME: Composite Score Distribution", fontsize=14, fontweight="bold")
 plt.xlabel("Composite Score (0-100)")
 plt.ylabel("Number of Providers")
 plt.legend()

@@ -1,5 +1,5 @@
 # viz_03_h1_call_impact.py
-# Before vs After Member Calls — Tier Comparison
+# Before vs After Member Calls: Tier Comparison
 # Input: h1_with_calls.csv
 
 import pandas as pd
@@ -28,7 +28,7 @@ plt.bar(x - width/2, before_counts.values, width, label="Before Calls", color="s
 plt.bar(x + width/2, after_counts.values,  width, label="After Calls",  color="crimson",   edgecolor="black", hatch="//")
 
 plt.xticks(x, tiers)
-plt.title("H1 General DME — Tier Distribution Before vs After Member Calls", fontsize=13, fontweight="bold")
+plt.title("H1 General DME: Tier Distribution Before vs After Member Calls", fontsize=13, fontweight="bold")
 plt.xlabel("Risk Tier")
 plt.ylabel("Number of Providers")
 plt.yscale('log')

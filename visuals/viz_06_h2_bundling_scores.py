@@ -16,7 +16,7 @@ df = pd.read_csv(str(DATA_DIR / "catheter_composite_scores.csv"))
 plt.figure(figsize=(9, 5))
 plt.hist(df["bundling_score"], bins=20, color="mediumpurple", edgecolor="black")
 
-plt.title("H2 Catheter Providers — Bundling Score Distribution", fontsize=13, fontweight="bold")
+plt.title("H2 Catheter Providers: Bundling Score Distribution", fontsize=13, fontweight="bold")
 plt.xlabel("Bundling Score (0-100)")
 plt.ylabel("Number of Providers")
 

@@ -1,6 +1,6 @@
 # validate_caet.py
 # Runs 4 checks against your real CSVs to confirm the code is doing what
-# the outline says. Prints PASS/FAIL for each — no manual eyeballing needed.
+# the outline says. Prints PASS/FAIL for each, no manual eyeballing needed.
 
 import pandas as pd
 
@@ -11,10 +11,10 @@ BASE = str(BASE_DIR) + "/"
 
 def check(label, condition, detail=""):
     status = "PASS" if condition else "FAIL"
-    print(f"[{status}] {label}" + (f" -- {detail}" if detail else ""))
+    print(f"[{status}] {label}" + (f": {detail}" if detail else ""))
 
 print("=" * 70)
-print("CHECK 1 -- ROW COUNTS")
+print("CHECK 1: ROW COUNTS")
 print("=" * 70)
 
 dme = pd.read_csv(BASE + "dme_with_signals.csv")
@@ -42,7 +42,7 @@ check("h2_with_calls.csv row count matches catheter_composite_scores.csv",
 
 print()
 print("=" * 70)
-print("CHECK 2 -- KNOWN EXAMPLES (hand-computed vs. actual file)")
+print("CHECK 2: KNOWN EXAMPLES (hand-computed vs. actual file)")
 print("=" * 70)
 
 WEIGHTS = {
@@ -74,7 +74,7 @@ for npi in known_npis:
 
 print()
 print("=" * 70)
-print("CHECK 3 -- COLUMN HANDOFF (no leftover merge-collision columns)")
+print("CHECK 3: COLUMN HANDOFF (no leftover merge-collision columns)")
 print("=" * 70)
 
 for name, df in [("h1_with_calls.csv", h1_wc), ("h2_with_calls.csv", h2_wc),
@@ -84,7 +84,7 @@ for name, df in [("h1_with_calls.csv", h1_wc), ("h2_with_calls.csv", h2_wc),
 
 print()
 print("=" * 70)
-print("CHECK 4 -- FORMULA RECONCILIATION (composite_with_calls, sample of 5)")
+print("CHECK 4: FORMULA RECONCILIATION (composite_with_calls, sample of 5)")
 print("=" * 70)
 
 sample_h1 = h1_wc[h1_wc["member_call_score"] > 0].head(5)

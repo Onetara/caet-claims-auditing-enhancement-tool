@@ -1,5 +1,5 @@
 # viz_05_h1_state_heatmap.py
-# Geographic Heatmap — HIGH/CRITICAL Provider Count by State
+# Geographic Heatmap: HIGH/CRITICAL Provider Count by State
 # Input: h1_composite_results.csv + dme_with_signals.csv
 
 import pandas as pd
@@ -40,7 +40,7 @@ fig = px.choropleth(
     color="total_providers",
     scope="usa",
     color_continuous_scale="Reds",
-    title="H1 General DME — Total Providers by State",
+    title="H1 General DME: Total Providers by State",
     labels={"total_providers": "Provider Count"}
 )
 

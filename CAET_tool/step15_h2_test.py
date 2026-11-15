@@ -1,5 +1,5 @@
 # step15_h2_test.py
-# H2 Test — Intermittent Catheter Fraud Detection
+# H2 Test: Intermittent Catheter Fraud Detection
 # Requires: catheter_composite_scores.csv
 
 import pandas as pd
@@ -10,7 +10,7 @@ BASE_DIR = Path(__file__).resolve().parent
 # ── LOAD ─────────────────────────────────────────────────────────────
 h2_results = pd.read_csv(str(BASE_DIR / "catheter_composite_scores.csv"))
 
-# ── FILTER — HIGH RISK CATHETER STATES ONLY ──────────────────────────
+# ── FILTER: HIGH RISK CATHETER STATES ONLY ──────────────────────────
 HIGH_RISK_CATHETER_STATES = ["OK", "FL", "NY", "TX", "GA"]
 
 filtered = h2_results[
@@ -54,7 +54,7 @@ print(f"Threshold        : >= 75%")
 if hit_rate >= 0.75:
     print("H2 PASSED")
 else:
-    print("H2 FAILED — review catheter scorer weights")
+    print("H2 FAILED: review catheter scorer weights")
 
 # ── SAVE ─────────────────────────────────────────────────────────────
 results_df.to_csv(str(BASE_DIR / "h2_test_results.csv"), index=False)

@@ -6,17 +6,17 @@ BASE_DIR = Path(__file__).resolve().parent
 # Load the foundation file
 df = pd.read_csv(str(BASE_DIR / "dme_with_signals.csv"))
 
-# Step 8: Member Call Scorer (PLACEHOLDER MODE — v2.8)
+# Step 8: Member Call Scorer (PLACEHOLDER MODE: v2.8)
 # Scope: subjective signals only. Claim-AI signals excluded per CAET scope.
 CALL_WEIGHTS = {
-    "no_diagnosis_match_reported_count": 60,  # NEW v2.8 — phantom billing
+    "no_diagnosis_match_reported_count": 60,  # NEW v2.8: phantom billing
     "no_consent_count":                  55,
     "never_received_count":              50,
     "wrong_item_count":                  40,
     "rental_not_returned_count":         40
 }
 
-# Initialize all call columns to 0 (placeholder — real data plugs in here)
+# Initialize all call columns to 0 (placeholder, real data plugs in here)
 for col in CALL_WEIGHTS.keys():
     df[col] = 0
 
@@ -65,5 +65,5 @@ print(df["member_call_tier"].value_counts())
 print("\n=== Score stats (expected: all zeros) ===")
 print(df["member_call_score"].describe())
 
-print("\n✅ Placeholder ready (v2.8 — 5 member-reported signals).")
+print("\n✅ Placeholder ready (v2.8, 5 member-reported signals).")
 print("To activate: populate the 5 call count columns + distinct_members_reporting with real data, then re-run.")

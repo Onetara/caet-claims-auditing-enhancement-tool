@@ -23,7 +23,7 @@ colors = top20["updated_tier"].map(tier_colors)
 plt.figure(figsize=(9, 8))
 plt.barh(top20["Suplr_NPI"].astype(str), top20["composite_with_calls"], color=colors, edgecolor="black")
 
-plt.title("Top 20 Highest Risk Providers — H1 General DME", fontsize=13, fontweight="bold")
+plt.title("Top 20 Highest Risk Providers: H1 General DME", fontsize=13, fontweight="bold")
 plt.xlabel("Composite Score (0-100)")
 plt.ylabel("Provider NPI")
 plt.gca().invert_yaxis()   # highest score at top
