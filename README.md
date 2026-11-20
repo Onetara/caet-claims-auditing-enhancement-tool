@@ -1,52 +1,108 @@
 # CAET: Claims Auditing Enhancement Tool
 **Author:** Dr. S. L. Toriola, MD, MSc.
 
-**Goal:** Learn healthcare claims fraud analytics and compliance analytics by building statistical software in Python (pandas), matplotlib/seaborn, and Power BI.
+**Goal:** Learn healthcare claims fraud, waste, and abuse (FWA) and compliance analytics by building statistical software in Python (pandas), matplotlib/seaborn, and Power BI.
 
-**Project:**
-- Asks: Can statistical fraud signals alone separate legitimate
-  high-volume DME providers from fraud rings?
-- New insight: Applying future member claims denial accuracy with integrated caller input that feeds the AI screen after call and case completion.
-- H1 (General DME): tests all 59,592 suppliers across every equipment type. Pass = 70% or more score HIGH or CRITICAL.
-- H2 (Intermittent catheters): tests the 41 catheter suppliers in OK, FL, NY, TX, GA (of 206 billing 8+ catheter codes), adding a bundling signal. Pass = 75% or more.
-- A "hit" = scored HIGH or CRITICAL. It means flagged for review, not confirmed fraud.
-- Why H2: catheter fraud can go undetected in general DME scoring, because category weights and pooled cutoffs dampen it. H2 uses catheter-specific cutoffs and bundling signals. Basis: author's claims-adjustment experience and CMS data.
-- Provides: two risk-scoring models (H1 general DME, H2 intermittent
-  catheters), tiered composite scores, a member-call amplifier
-  (simulated calls), charts, and a Power BI dashboard.
-- Results: H1: 0% of 59,592 providers HIGH/CRITICAL on signals alone.
-  H2: 8 of 41 (19.5%) HIGH vs a 75% target, not met.
+## Start Here (plain-language guide)
 
-**Project Logistics:**
-- Structure: `CAET_tool/` (scripts, run in step order), `visuals/`,
-  `dashboard/`, `docs/` (methodology)
-- Data: CMS Medicare DME by Supplier and Service, 2023 (463,784 rows);
-  CSVs are gitignored
-- Key vocab (parameters measured):
-  - Charge-to-allowed ratio: upcoding signal
-  - Claims per beneficiary: volume signal
-  - Geography: high-risk states, state volume outliers
-  - Rental ratio: rental abuse signal
-  - Catheter bundling: H2-specific signal
-  - Category risk weight: CMS improper-payment-rate multiplier; can mask low-weight categories like catheters in H1
-  - Catheter-specific cutoffs: H2 thresholds, used to avoid that masking
-  - Member-call score: complaint-based amplifier
-  - Composite score and tiers: LOW <40, MEDIUM 40, HIGH 60, CRITICAL 80
-  - Override floor: minimum H2 score (65 or 42) for strong bundling flags
-- Run order (`CAET_tool/`, run from that folder):
+- **DME** = Durable Medical Equipment: items a doctor orders for home use, such as catheters, CPAP machines, wound dressings, braces.
+- **Supplier** = the business that bills Medicare for that equipment.
+- **Signal** = a number that looks unusual compared with other suppliers, such as billing far above what Medicare allows.
+- **Score** = signals combined into one number from 0 to 100. Higher means more worth a second look.
+- **Tier** = a label for the score: LOW (under 40), MEDIUM (40), HIGH (60), CRITICAL (80).
+- **Member call** = a Medicare member phoning in a complaint about a supplier, such as "I never received this item."
+- **Hit** = scored HIGH or CRITICAL. It means flagged for review, not confirmed fraud.
 
-  | Step | File | What it does |
-  |---|---|---|
-  | 1 | `step1_load_data.py` | Loads CMS data, adds signals and category weights |
-  | 4 | `step4_thresholds.py` | Prints general and catheter percentiles |
-  | 5, 7, 8 | `step5_...`, `step7_...`, `step8_...` | Upcoding, geographic, member-call scorers |
-  | 9 | `step_rental_scorer.py`, `step9b_composite_h1.py` | Rental scorer, H1 composite |
-  | 10 | `step10_h1_test.py` | H1 test (baseline, plus with-calls if step 16 was run) |
-  | 11, 12, 13 | `step11_...`, `step12_...`, `step13_...` | Catheter candidates, bundling, H2 composite |
-  | 15 | `step15_h2_test.py` | H2 test |
-  | 16 | `step16_member_call_integration.py` | Applies simulated member calls |
-  | check | `validate_caet.py` | Reconciles outputs |
-  | shared | `caet_shared.py` | Shared weights, H2 cutoffs, override floor |
+## Project
+
+**What it asks**
+- Can billing signals and member calls help an auditor decide which suppliers to review first?
+- Which suppliers should an auditor review first, based on billing patterns and member complaints?
+- Do billing signals alone, or billing signals plus member calls, identify high-risk suppliers?
+
+**H1 (General DME)**
+- Tests all 59,592 suppliers across every equipment type.
+- H1 = signals alone, at any tier (LOW, MEDIUM, HIGH, CRITICAL). The with-calls run then adds member calls.
+- Target: 70% or more of tested suppliers reach HIGH or CRITICAL.
+
+**H2 (Intermittent urinary catheters)**
+- Tests the 41 catheter suppliers in OK, FL, NY, TX, GA, picked from the 206 that bill 8 or more catheter codes.
+- H2 = catheter signals (including bundling) plus calls, at any tier.
+- Target: 75% or more reach HIGH or CRITICAL.
+
+**Why H2 exists**
+- Catheter fraud can go undetected inside general DME scoring, because one pooled cutoff and the category weight shrink catheter scores.
+- H2 uses catheter-specific cutoffs and a bundling signal (many related catheter codes billed together).
+- Basis: the author's claims-adjustment experience and CMS data.
+
+**What it provides**
+- Two risk-scoring models (H1 and H2) with tiered composite scores.
+- A member-call amplifier, run here on 30 simulated calls.
+- Charts, a Power BI dashboard, and a methodology document.
+
+**Results (full CMS 2023 run)**
+
+| Test | Signals alone | Signals plus simulated calls |
+|---|---|---|
+| H1, 59,592 suppliers | 0 HIGH or CRITICAL (top score 27.8) | 6 suppliers reach MEDIUM, 0 reach HIGH |
+| H2, 41 suppliers | 8 HIGH, 24 MEDIUM, 9 LOW (19.5% HIGH) | Of 7 catheter suppliers with calls: 1 CRITICAL, 5 HIGH, 1 MEDIUM |
+
+- Calls move suppliers up a tier, which is what the amplifier is built to do.
+- Simulated calls cover 10 suppliers only, so these numbers show how the tool behaves, not real fraud rates.
+
+## Foundation
+
+**Structure**
+- `CAET_tool/` holds the scripts, run in step order.
+- `visuals/`, `dashboard/`, `docs/` hold charts, the Power BI PDF, and the methodology.
+
+**Data**
+- CMS Medicare DME by Supplier and Service, 2023: 463,784 rows, 59,592 suppliers.
+- CSV files are gitignored. Place `master_set_cms_medicare_dme_2023.csv` inside `CAET_tool/` before running.
+
+**Variables measured (what Python calculates)**
+
+| Variable | Where it comes from | What it means |
+|---|---|---|
+| `charge_to_allowed_ratio` | Submitted charge divided by Medicare allowed amount | Upcoding signal: how far billing exceeds what Medicare allows |
+| `claims_per_bene` | Total claims divided by total beneficiaries | Volume signal: how often the same patient is billed |
+| `payment_delta` | Allowed amount minus Medicare payment | Gap between what was allowed and what was paid |
+| `geo_standardization_delta` | Medicare payment minus standardized amount | Regional price adjustment |
+| `fraud_hcpcs_cat` | HCPCS code (the item billed) grouped into a category | Dressing, orthotic, CGM, catheter, CPAP, or other |
+| `category_risk_weight` | Fixed CMS improper-payment-rate number per category | Multiplier on row scores. Dressings 0.576, orthotic 0.513, CGM 0.252, catheter 0.180, CPAP 0.125, other 0.100 |
+| `rental_ratio` | Rental rows divided by all rows for a supplier | Rental abuse signal |
+| `geo_score` | State and RUCA (urban or rural code) | High-risk states +30, urban +15, state outlier +20 |
+| `bundling_score` | Count and mix of catheter codes per supplier | H2 signal: 14 or more codes scores highest |
+| `member_call_score` | Call reason and number of distinct members | Complaint amplifier, capped at 100 |
+| `composite_score` | Weighted blend of the signals above | The final 0 to 100 score |
+| Cutoffs (90th and 99th percentile) | Calculated from the full CMS data in step 4 | A row earns 60 points above the 90th, 100 above the 99th |
+| Override floor | Rule in `caet_shared.py` | Minimum H2 score (65 or 42) when bundling is extreme or high |
+
+**Files and what each does**
+
+| Step | File | What it does |
+|---|---|---|
+| 1 | `step1_load_data.py` | Loads the CMS file, adds ratios, categories, and category weights |
+| 4 | `step4_thresholds.py` | Prints general and catheter percentile cutoffs |
+| 5 | `step5_upcoding_scorer.py` | Scores charge-to-allowed ratio |
+| 7 | `step7_geo_scorer.py` | Scores state and urban risk |
+| 8 | `step8_member_call_scorer.py` | Empty member-call scorer, all zeros until calls are added |
+| 9 | `step_rental_scorer.py` | Scores rental abuse |
+| 9b | `step9b_composite_h1.py` | Combines signals into the H1 score and tier |
+| 10 | `step10_h1_test.py` | H1 test: hit rate against the 70% target, with and without calls |
+| 11 | `step11_identify_catheter_providers.py` | Finds the 206 suppliers billing 8 or more catheter codes |
+| 12 | `step12_catheter_bundling_scorer.py` | Scores catheter bundling |
+| 13 | `step13_catheter_composite.py` | Combines H2 signals, applies the override floor |
+| 15 | `step15_h2_test.py` | H2 test: hit rate against the 75% target |
+| 16 | `step16_member_call_integration.py` | Applies 30 simulated calls, re-scores H1 and H2 |
+| check | `validate_caet.py` | Confirms row counts and score math |
+| shared | `caet_shared.py` | Shared call weights, H2 cutoffs, override floor |
+| aid | `select_test_candidates.py` | Picks example suppliers for each tier |
+| aid | `step_check_rental_modifiers.py` | Lists rental-related columns in the data |
+| charts | `visuals/viz_01` to `viz_08` | Chart scripts (tiers, score spread, call impact, top 20, state map, bundling) |
+
+**How to run**
+- Open a terminal in `CAET_tool/` and run the steps in the order shown above, ending with `validate_caet.py`.
 
 ## Featured Visuals
 
