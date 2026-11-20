@@ -20,19 +20,20 @@
 - Which suppliers should an auditor review first, based on billing patterns and member complaints?
 - Do billing signals alone, or billing signals plus member calls, identify high-risk suppliers?
 
-**H1 (General DME)**
+**H1: Hypothesis 1 of 2 (General DME, signals alone)**
 - Tests all 59,592 suppliers across every equipment type.
 - H1 = signals alone, at any tier (LOW, MEDIUM, HIGH, CRITICAL). The with-calls run then adds member calls.
 - Target: 70% or more of tested suppliers reach HIGH or CRITICAL.
 
-**H2 (Intermittent urinary catheters)**
+**H2: Hypothesis 2 of 2 (Intermittent urinary catheters, signals plus calls)**
 - Tests the 41 catheter suppliers in OK, FL, NY, TX, GA, picked from the 206 that bill 8 or more catheter codes.
-- H2 = catheter signals (including bundling) plus calls, at any tier.
+- H2 = catheter signals (bundling and units per claim) plus calls, at any tier.
 - Target: 75% or more reach HIGH or CRITICAL.
 
 **Why H2 exists**
 - Catheter fraud can go undetected inside general DME scoring, because one pooled cutoff and the category weight shrink catheter scores.
-- H2 uses catheter-specific cutoffs and a bundling signal (many related catheter codes billed together).
+- H2 uses catheter-specific cutoffs and two billing signals: bundling (many different catheter codes) and units per claim (maximum units of the same code).
+- Claims show what was billed. Only member calls show what was received.
 - Basis: the author's claims-adjustment experience and CMS data.
 
 **What it provides**
@@ -45,7 +46,7 @@
 | Test | Signals alone | Signals plus simulated calls |
 |---|---|---|
 | H1, 59,592 suppliers | 0 HIGH or CRITICAL (top score 27.8) | 6 suppliers reach MEDIUM, 0 reach HIGH |
-| H2, 41 suppliers | 8 HIGH, 24 MEDIUM, 9 LOW (19.5% HIGH) | Of 7 catheter suppliers with calls: 1 CRITICAL, 5 HIGH, 1 MEDIUM |
+| H2, 41 suppliers | 8 HIGH, 24 MEDIUM, 9 LOW (19.5% HIGH) | Of 7 catheter suppliers with calls: 5 HIGH, 2 MEDIUM |
 
 - Calls move suppliers up a tier, which is what the amplifier is built to do.
 - Simulated calls cover 10 suppliers only, so these numbers show how the tool behaves, not real fraud rates.
@@ -73,8 +74,9 @@
 | `rental_ratio` | Rental rows divided by all rows for a supplier | Rental abuse signal |
 | `geo_score` | State and RUCA (urban or rural code) | High-risk states +30, urban +15, state outlier +20 |
 | `bundling_score` | Count and mix of catheter codes per supplier | H2 signal: 14 or more codes scores highest |
+| `units_score` | Services divided by claims, compared with the same HCPCS code | H2 signal: billing at the maximum units. 60 points at the code's 90th percentile, 100 at the 99th |
 | `member_call_score` | Call reason and number of distinct members | Complaint amplifier, capped at 100 |
-| `composite_score` | Weighted blend of the signals above | The final 0 to 100 score |
+| `composite_score` | Weighted blend of the signals above | The final 0 to 100 score. H2 weights: bundling 0.25, units 0.15, calls 0.25, volume 0.15, upcoding 0.10, geo 0.10 |
 | Cutoffs (90th and 99th percentile) | Calculated from the full CMS data in step 4 | A row earns 60 points above the 90th, 100 above the 99th |
 | Override floor | Rule in `caet_shared.py` | Minimum H2 score (65 or 42) when bundling is extreme or high |
 
@@ -92,11 +94,11 @@
 | 10 | `step10_h1_test.py` | H1 test: hit rate against the 70% target, with and without calls |
 | 11 | `step11_identify_catheter_providers.py` | Finds the 206 suppliers billing 8 or more catheter codes |
 | 12 | `step12_catheter_bundling_scorer.py` | Scores catheter bundling |
-| 13 | `step13_catheter_composite.py` | Combines H2 signals, applies the override floor |
+| 13 | `step13_catheter_composite.py` | Scores units per claim, combines H2 signals, applies the override floor |
 | 15 | `step15_h2_test.py` | H2 test: hit rate against the 75% target |
 | 16 | `step16_member_call_integration.py` | Applies 30 simulated calls, re-scores H1 and H2 |
 | check | `validate_caet.py` | Confirms row counts and score math |
-| shared | `caet_shared.py` | Shared call weights, H2 cutoffs, override floor |
+| shared | `caet_shared.py` | Shared call weights, H2 weights and cutoffs, override floor |
 | aid | `select_test_candidates.py` | Picks example suppliers for each tier |
 | aid | `step_check_rental_modifiers.py` | Lists rental-related columns in the data |
 | charts | `visuals/viz_01` to `viz_08` | Chart scripts (tiers, score spread, call impact, top 20, state map, bundling) |

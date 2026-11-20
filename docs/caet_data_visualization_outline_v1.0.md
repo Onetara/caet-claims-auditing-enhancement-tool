@@ -87,12 +87,17 @@ Scoring Parameters
       Geographic: CA, FL, TX, NY, IL +30, urban +15 (in those states),
       state volume outlier (above state 95th percentile) +20. Cap 100.
 
-    H2 composite weights: catheter bundling 0.40, member calls 0.25,
-    volume 0.15, upcoding 0.10, geographic 0.10.
+    H2 composite weights: catheter bundling 0.25, units per claim 0.15,
+    member calls 0.25, volume 0.15, upcoding 0.10, geographic 0.10.
       Bundling: 14+ catheter codes +55, 8 to 13 +35, 5 to 7 +15;
       straight and coude codes (A4351, A4352) billed together +30;
       accessories without a primary code +25; Oklahoma with more than
       100 catheter claims +20. Cap 100.
+      Units per claim: services divided by claims, compared only with
+      rows of the same HCPCS code (codes with 20+ supplier rows).
+      At or above that code's 90th percentile 60 points, 99th 100
+      points; the supplier takes its highest row. Claims show what was
+      billed; only member calls show what was received.
       Volume: highest claims per beneficiary above 9.12 +40, average
       above 5.35 +25, total claims above 50,000 +20.
       Upcoding: highest charge-to-allowed ratio above 4.14 +50,

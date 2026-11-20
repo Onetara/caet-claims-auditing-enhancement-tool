@@ -6,7 +6,7 @@ import pandas as pd
 from datetime import datetime
 
 from pathlib import Path
-from caet_shared import call_reason_weight, apply_override_floor
+from caet_shared import call_reason_weight, apply_override_floor, H2_WEIGHTS
 BASE_DIR = Path(__file__).resolve().parent
 
 # ── CREATE SIMULATED MEMBER CALLS CSV ────────────────────────────────
@@ -175,11 +175,12 @@ h2 = h2.merge(call_scores_df, left_on="npi", right_on="provider_npi", how="left"
 h2["member_call_score"] = h2["member_call_score"].fillna(0)
 
 h2["composite_with_calls"] = (
-    h2["bundling_score"]    * 0.40 +
-    h2["member_call_score"] * 0.25 +
-    h2["volume_score"]      * 0.15 +
-    h2["upcoding_score"]    * 0.10 +
-    h2["geo_score"]         * 0.10
+    h2["bundling_score"]    * H2_WEIGHTS["catheter_bundling"] +
+    h2["units_score"]       * H2_WEIGHTS["units"] +
+    h2["member_call_score"] * H2_WEIGHTS["member_call"] +
+    h2["volume_score"]      * H2_WEIGHTS["volume"] +
+    h2["upcoding_score"]    * H2_WEIGHTS["upcoding"] +
+    h2["geo_score"]         * H2_WEIGHTS["geographic"]
 )
 # Same override floor as step13, so tiers are comparable before and after calls
 h2["composite_with_calls"] = h2.apply(

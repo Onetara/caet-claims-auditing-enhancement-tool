@@ -7,7 +7,7 @@ from pathlib import Path
 from caet_shared import (
     CATH_CHARGE_MAX_CUTOFF, CATH_CHARGE_MEAN_CUTOFF,
     CATH_CPB_MAX_CUTOFF, CATH_CPB_MEAN_CUTOFF, CATH_TOTAL_CLAIMS_CUTOFF,
-    apply_override_floor,
+    apply_override_floor, H2_WEIGHTS, UNITS_MIN_ROWS,
 )
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -18,17 +18,28 @@ candidate_npis = bundling_df["npi"].unique()
 
 HIGH_RISK_CATHETER_STATES = ["OK", "FL", "NY", "TX", "GA"]
 
-# ── CATHETER COMPOSITE WEIGHTS ───────────────────────────────────────
-# Bundling is the dominant signal for catheter fraud
-WEIGHTS = {
-    "catheter_bundling": 0.40,
-    "member_call":       0.25,
-    "volume":            0.15,
-    "upcoding":          0.10,
-    "geographic":        0.10,
-}
+# Composite weights live in caet_shared.H2_WEIGHTS
+WEIGHTS = H2_WEIGHTS
+
+# ── UNITS CUTOFFS (per HCPCS code) ───────────────────────────────────
+# Units per claim differ a lot by code (about 150 for A4351, about 5 for A4333),
+# so each row is compared only with rows of the same code.
+cath = df[df["fraud_hcpcs_cat"] == "CATHETER"].copy()
+cath["units_per_claim"] = cath["Tot_Suplr_Srvcs"] / cath["Tot_Suplr_Clms"]
+code_stats = cath.groupby("HCPCS_Cd")["units_per_claim"].agg(
+    rows="count", p90=lambda x: x.quantile(0.90), p99=lambda x: x.quantile(0.99))
+code_stats = code_stats[code_stats["rows"] >= UNITS_MIN_ROWS]
+cath = cath.merge(code_stats[["p90", "p99"]], left_on="HCPCS_Cd", right_index=True)
+cath["units_points"] = 0.0
+cath.loc[cath["units_per_claim"] >= cath["p90"], "units_points"] = 60.0
+cath.loc[cath["units_per_claim"] >= cath["p99"], "units_points"] = 100.0
+units_by_npi = cath.groupby("Suplr_NPI")["units_points"].max()
 
 # ── SUPPORTING SCORERS ───────────────────────────────────────────────
+def units_score(npi):
+    return float(units_by_npi.get(npi, 0.0))
+
+
 def volume_score(provider_rows):
     cpb = provider_rows["claims_per_bene"].dropna()
     if cpb.empty:
@@ -82,12 +93,14 @@ for npi in candidate_npis:
 
     b_score = bundling_row["bundling_score"].values[0]
     v_score = volume_score(provider_rows)
+    n_score = units_score(npi)
     u_score = upcoding_score(provider_rows)
     g_score = geo_score(provider_rows)
     m_score = 0.0    # no member calls applied, baseline only
 
     composite = (
         (b_score * WEIGHTS["catheter_bundling"]) +
+        (n_score * WEIGHTS["units"])             +
         (m_score * WEIGHTS["member_call"])       +
         (v_score * WEIGHTS["volume"])            +
         (u_score * WEIGHTS["upcoding"])          +
@@ -105,6 +118,7 @@ for npi in candidate_npis:
         "provider_name":   bundling_row["provider_name"].values[0],
         "state":           bundling_row["state"].values[0],
         "bundling_score":  b_score,
+        "units_score":     n_score,
         "volume_score":    v_score,
         "upcoding_score":  u_score,
         "geo_score":       g_score,

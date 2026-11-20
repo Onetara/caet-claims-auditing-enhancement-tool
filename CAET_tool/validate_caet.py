@@ -5,7 +5,7 @@
 import pandas as pd
 
 from pathlib import Path
-from caet_shared import call_reason_weight, apply_override_floor
+from caet_shared import call_reason_weight, apply_override_floor, H2_WEIGHTS
 BASE_DIR = Path(__file__).resolve().parent
 
 BASE = str(BASE_DIR) + "/"
@@ -95,11 +95,12 @@ for _, row in sample_h1.iterrows():
 sample_h2 = h2_wc[h2_wc["member_call_score"] > 0].head(5)
 for _, row in sample_h2.iterrows():
     weighted = (
-        row["bundling_score"]    * 0.40 +
-        row["member_call_score"] * 0.25 +
-        row["volume_score"]      * 0.15 +
-        row["upcoding_score"]    * 0.10 +
-        row["geo_score"]         * 0.10)
+        row["bundling_score"]    * H2_WEIGHTS["catheter_bundling"] +
+        row["units_score"]       * H2_WEIGHTS["units"] +
+        row["member_call_score"] * H2_WEIGHTS["member_call"] +
+        row["volume_score"]      * H2_WEIGHTS["volume"] +
+        row["upcoding_score"]    * H2_WEIGHTS["upcoding"] +
+        row["geo_score"]         * H2_WEIGHTS["geographic"])
     recomputed = round(apply_override_floor(weighted, row["flags"], row["geo_score"]), 2)
     check(f"H2 NPI {row['npi']} composite_with_calls reconciles",
           abs(recomputed - row["composite_with_calls"]) < 0.02,

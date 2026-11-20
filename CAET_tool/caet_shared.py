@@ -48,6 +48,21 @@ CATH_CPB_MEAN_CUTOFF    = 5.35   # average claims per beneficiary of a provider
 CATH_TOTAL_CLAIMS_CUTOFF = 50000 # total claims of a provider
 
 
+# ── H2 COMPOSITE WEIGHTS ─────────────────────────────────────────────
+# Single source for step13, step16 and validate_caet. Must sum to 1.00.
+H2_WEIGHTS = {
+    "catheter_bundling": 0.25,   # variety of catheter codes billed
+    "units":             0.15,   # units per claim vs the same code's peers
+    "member_call":       0.25,   # member complaints
+    "volume":            0.15,   # claims per beneficiary, total claims
+    "upcoding":          0.10,   # charge-to-allowed ratio
+    "geographic":        0.10,   # high-risk state
+}
+
+# Units signal: units (services) per claim, compared within the same HCPCS code.
+UNITS_MIN_ROWS = 20   # a code needs this many supplier rows to set its own cutoffs
+
+
 # ── H2 OVERRIDE FLOOR ────────────────────────────────────────────────
 # Minimum composite score for catheter providers with strong bundling flags.
 # Used by step13 (baseline) and step16 (with member calls).
