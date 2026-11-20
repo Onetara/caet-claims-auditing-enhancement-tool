@@ -30,9 +30,9 @@ print(f"Hit Rate         : {hit_rate:.1%}")
 print("Threshold        : >= 70%")
 
 if hit_rate >= 0.70:
-    print("H1 PASSED")
+    print("Signals alone: target met")
 else:
-    print("H1 FAILED: review scorer weights")
+    print("Signals alone: below target (member calls not applied)")
 
 # ── WITH MEMBER CALLS (run step16 first) ─────────────────────────────
 calls_file = BASE_DIR / "h1_with_calls.csv"

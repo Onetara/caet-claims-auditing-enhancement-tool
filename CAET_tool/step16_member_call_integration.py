@@ -6,7 +6,7 @@ import pandas as pd
 from datetime import datetime
 
 from pathlib import Path
-from caet_shared import call_reason_weight, apply_override_floor, H2_WEIGHTS
+from caet_shared import call_reason_weight, h1_composite, h2_composite, tier
 BASE_DIR = Path(__file__).resolve().parent
 
 # ── CREATE SIMULATED MEMBER CALLS CSV ────────────────────────────────
@@ -89,6 +89,32 @@ simulated_calls = [
      "call_reason_code": "NEVER_RECEIVED_VALIDATED", "call_timestamp": "2024-09-23 09:00:00"},
     {"call_id": "CALL-2024-030", "member_id": "MBR-5508001", "provider_npi": 1699767061,
      "call_reason_code": "WRONG_ITEM_VALIDATED", "call_timestamp": "2024-09-24 09:00:00"},
+
+    # Catheter suppliers with top units-per-claim scores: billed at maximum
+    # units, and members report not receiving the supplies (Home Care Delivered,
+    # Handi Medical Supply, Abc Home Medical Supply, Bay Medical)
+    {"call_id": "CALL-2024-031", "member_id": "MBR-6601001", "provider_npi": 1245239540,
+     "call_reason_code": "NEVER_RECEIVED_VALIDATED", "call_timestamp": "2024-10-01 09:00:00"},
+    {"call_id": "CALL-2024-032", "member_id": "MBR-6601002", "provider_npi": 1245239540,
+     "call_reason_code": "NEVER_RECEIVED_VALIDATED", "call_timestamp": "2024-10-02 09:00:00"},
+    {"call_id": "CALL-2024-033", "member_id": "MBR-6601003", "provider_npi": 1245239540,
+     "call_reason_code": "WRONG_ITEM_VALIDATED", "call_timestamp": "2024-10-03 09:00:00"},
+    {"call_id": "CALL-2024-034", "member_id": "MBR-6602001", "provider_npi": 1922006741,
+     "call_reason_code": "NEVER_RECEIVED_VALIDATED", "call_timestamp": "2024-10-04 09:00:00"},
+    {"call_id": "CALL-2024-035", "member_id": "MBR-6602002", "provider_npi": 1922006741,
+     "call_reason_code": "NO_CONSENT_VALIDATED", "call_timestamp": "2024-10-05 09:00:00"},
+    {"call_id": "CALL-2024-036", "member_id": "MBR-6602003", "provider_npi": 1922006741,
+     "call_reason_code": "WRONG_ITEM_VALIDATED", "call_timestamp": "2024-10-06 09:00:00"},
+    {"call_id": "CALL-2024-037", "member_id": "MBR-6603001", "provider_npi": 1417217951,
+     "call_reason_code": "NEVER_RECEIVED_VALIDATED", "call_timestamp": "2024-10-07 09:00:00"},
+    {"call_id": "CALL-2024-038", "member_id": "MBR-6603002", "provider_npi": 1417217951,
+     "call_reason_code": "WRONG_ITEM_VALIDATED", "call_timestamp": "2024-10-08 09:00:00"},
+    {"call_id": "CALL-2024-039", "member_id": "MBR-6604001", "provider_npi": 1689147043,
+     "call_reason_code": "NEVER_RECEIVED_VALIDATED", "call_timestamp": "2024-10-09 09:00:00"},
+    {"call_id": "CALL-2024-040", "member_id": "MBR-6604002", "provider_npi": 1689147043,
+     "call_reason_code": "NEVER_RECEIVED_VALIDATED", "call_timestamp": "2024-10-10 09:00:00"},
+    {"call_id": "CALL-2024-041", "member_id": "MBR-6604003", "provider_npi": 1689147043,
+     "call_reason_code": "NO_CONSENT_VALIDATED", "call_timestamp": "2024-10-11 09:00:00"},
 ]
 
 calls_df = pd.DataFrame(simulated_calls)
@@ -142,19 +168,10 @@ h1 = h1.merge(call_scores_df, left_on="Suplr_NPI", right_on="provider_npi", how=
 h1["member_call_score"]  = h1["member_call_score"].fillna(0)
 
 # Recalculate composite with real member call score
-h1["composite_with_calls"] = (
-    h1["member_call_score"] * 0.35 +
-    h1["upcoding_max"]      * 0.25 +
-    h1["volume_max"]        * 0.20 +
-    h1["rental_max"]        * 0.10 +
-    h1["geo_max"]           * 0.10
+h1["composite_with_calls"] = h1_composite(
+    h1["upcoding_max"], h1["volume_max"], h1["rental_max"],
+    h1["geo_max"], h1["member_call_score"]
 ).round(2)
-
-def tier(score):
-    if   score >= 80: return "CRITICAL"
-    elif score >= 60: return "HIGH"
-    elif score >= 40: return "MEDIUM"
-    else:             return "LOW"
 
 h1["updated_tier"] = h1["composite_with_calls"].apply(tier)
 
@@ -174,17 +191,11 @@ if "member_call_score" in h2.columns:
 h2 = h2.merge(call_scores_df, left_on="npi", right_on="provider_npi", how="left")
 h2["member_call_score"] = h2["member_call_score"].fillna(0)
 
-h2["composite_with_calls"] = (
-    h2["bundling_score"]    * H2_WEIGHTS["catheter_bundling"] +
-    h2["units_score"]       * H2_WEIGHTS["units"] +
-    h2["member_call_score"] * H2_WEIGHTS["member_call"] +
-    h2["volume_score"]      * H2_WEIGHTS["volume"] +
-    h2["upcoding_score"]    * H2_WEIGHTS["upcoding"] +
-    h2["geo_score"]         * H2_WEIGHTS["geographic"]
-)
-# Same override floor as step13, so tiers are comparable before and after calls
+# Same weights and override floor as step13 (caet_shared.h2_composite)
 h2["composite_with_calls"] = h2.apply(
-    lambda r: apply_override_floor(r["composite_with_calls"], r["flags"], r["geo_score"]),
+    lambda r: h2_composite(r["bundling_score"], r["units_score"], r["volume_score"],
+                           r["upcoding_score"], r["geo_score"], r["member_call_score"],
+                           r["flags"]),
     axis=1
 ).round(2)
 

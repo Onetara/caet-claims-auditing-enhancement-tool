@@ -5,7 +5,7 @@
 import pandas as pd
 
 from pathlib import Path
-from caet_shared import call_reason_weight, apply_override_floor, H2_WEIGHTS
+from caet_shared import call_reason_weight, h1_composite, h2_composite
 BASE_DIR = Path(__file__).resolve().parent
 
 BASE = str(BASE_DIR) + "/"
@@ -31,7 +31,7 @@ h2_test = pd.read_csv(BASE + "h2_test_results.csv")
 check("h2_test_results.csv == 41 rows (post-fix)", len(h2_test) == 41, f"actual: {len(h2_test)}")
 
 calls = pd.read_csv(BASE + "member_calls.csv")
-check("member_calls.csv == 30 rows", len(calls) == 30, f"actual: {len(calls)}")
+check("member_calls.csv == 41 rows", len(calls) == 41, f"actual: {len(calls)}")
 
 h1_wc = pd.read_csv(BASE + "h1_with_calls.csv")
 check("h1_with_calls.csv row count matches h1_composite_results.csv",
@@ -82,26 +82,17 @@ print("=" * 70)
 
 sample_h1 = h1_wc[h1_wc["member_call_score"] > 0].head(5)
 for _, row in sample_h1.iterrows():
-    recomputed = round(
-        row["member_call_score"] * 0.35 +
-        row["upcoding_max"]      * 0.25 +
-        row["volume_max"]        * 0.20 +
-        row["rental_max"]        * 0.10 +
-        row["geo_max"]           * 0.10, 2)
+    recomputed = round(h1_composite(row["upcoding_max"], row["volume_max"], row["rental_max"],
+                                    row["geo_max"], row["member_call_score"]), 2)
     check(f"H1 NPI {row['Suplr_NPI']} composite_with_calls reconciles",
           abs(recomputed - row["composite_with_calls"]) < 0.02,
           f"recomputed {recomputed}, file has {row['composite_with_calls']}")
 
 sample_h2 = h2_wc[h2_wc["member_call_score"] > 0].head(5)
 for _, row in sample_h2.iterrows():
-    weighted = (
-        row["bundling_score"]    * H2_WEIGHTS["catheter_bundling"] +
-        row["units_score"]       * H2_WEIGHTS["units"] +
-        row["member_call_score"] * H2_WEIGHTS["member_call"] +
-        row["volume_score"]      * H2_WEIGHTS["volume"] +
-        row["upcoding_score"]    * H2_WEIGHTS["upcoding"] +
-        row["geo_score"]         * H2_WEIGHTS["geographic"])
-    recomputed = round(apply_override_floor(weighted, row["flags"], row["geo_score"]), 2)
+    recomputed = round(h2_composite(row["bundling_score"], row["units_score"], row["volume_score"],
+                                    row["upcoding_score"], row["geo_score"],
+                                    row["member_call_score"], row["flags"]), 2)
     check(f"H2 NPI {row['npi']} composite_with_calls reconciles",
           abs(recomputed - row["composite_with_calls"]) < 0.02,
           f"recomputed {recomputed}, file has {row['composite_with_calls']}")

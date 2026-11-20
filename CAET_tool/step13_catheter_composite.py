@@ -7,7 +7,7 @@ from pathlib import Path
 from caet_shared import (
     CATH_CHARGE_MAX_CUTOFF, CATH_CHARGE_MEAN_CUTOFF,
     CATH_CPB_MAX_CUTOFF, CATH_CPB_MEAN_CUTOFF, CATH_TOTAL_CLAIMS_CUTOFF,
-    apply_override_floor, H2_WEIGHTS, UNITS_MIN_ROWS,
+    h2_composite, tier, UNITS_MIN_ROWS,
 )
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -17,9 +17,6 @@ bundling_df    = pd.read_csv(str(BASE_DIR / "catheter_bundling_scores.csv"))
 candidate_npis = bundling_df["npi"].unique()
 
 HIGH_RISK_CATHETER_STATES = ["OK", "FL", "NY", "TX", "GA"]
-
-# Composite weights live in caet_shared.H2_WEIGHTS
-WEIGHTS = H2_WEIGHTS
 
 # ── UNITS CUTOFFS (per HCPCS code) ───────────────────────────────────
 # Units per claim differ a lot by code (about 150 for A4351, about 5 for A4333),
@@ -73,13 +70,6 @@ def geo_score(provider_rows):
     return min(score, 100.0)
 
 
-def tier(score):
-    if   score >= 80: return "CRITICAL"
-    elif score >= 60: return "HIGH"
-    elif score >= 40: return "MEDIUM"
-    else:             return "LOW"
-
-
 # ── RUN COMPOSITE ON ALL CANDIDATES ─────────────────────────────────
 results = []
 
@@ -98,20 +88,9 @@ for npi in candidate_npis:
     g_score = geo_score(provider_rows)
     m_score = 0.0    # no member calls applied, baseline only
 
-    composite = (
-        (b_score * WEIGHTS["catheter_bundling"]) +
-        (n_score * WEIGHTS["units"])             +
-        (m_score * WEIGHTS["member_call"])       +
-        (v_score * WEIGHTS["volume"])            +
-        (u_score * WEIGHTS["upcoding"])          +
-        (g_score * WEIGHTS["geographic"])
-    )
-
-    # Override floor rule (see caet_shared.apply_override_floor)
+    # Weights and the override floor live in caet_shared.h2_composite
     flags = str(bundling_row["flags"].values[0])
-    composite = apply_override_floor(composite, flags, g_score)
-
-    composite = round(composite, 2)
+    composite = round(h2_composite(b_score, n_score, v_score, u_score, g_score, m_score, flags), 2)
 
     results.append({
         "npi":             npi,

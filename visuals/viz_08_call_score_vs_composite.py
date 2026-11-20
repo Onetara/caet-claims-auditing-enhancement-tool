@@ -8,7 +8,7 @@ import numpy as np
 
 from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent
-DATA_DIR = BASE_DIR.parent  # project root, holds the shared CSVs
+DATA_DIR = BASE_DIR.parent / "CAET_tool"  # pipeline outputs
 # ── LOAD ─────────────────────────────────────────────────────────────
 df = pd.read_csv(str(DATA_DIR / "h1_with_calls.csv"))
 

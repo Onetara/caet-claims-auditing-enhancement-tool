@@ -1,4 +1,5 @@
 import pandas as pd
+from caet_shared import h1_composite, tier
 
 from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent
@@ -85,20 +86,12 @@ provider_scores = df.groupby("Suplr_NPI").agg(
 ).reset_index()
 
 # Apply composite weights
-provider_scores["composite_score"] = (
-    provider_scores["member_call_max"] * 0.35 +
-    provider_scores["upcoding_max"]    * 0.25 +
-    provider_scores["volume_max"]      * 0.20 +
-    provider_scores["rental_max"]      * 0.10 +
-    provider_scores["geo_max"]         * 0.10
-)
+provider_scores["composite_score"] = h1_composite(
+    provider_scores["upcoding_max"], provider_scores["volume_max"],
+    provider_scores["rental_max"], provider_scores["geo_max"],
+    provider_scores["member_call_max"])
 
-# Tier assignment
-def tier(score):
-    if score >= 80: return "CRITICAL"
-    elif score >= 60: return "HIGH"
-    elif score >= 40: return "MEDIUM"
-    else: return "LOW"
+# Tier assignment (bands live in caet_shared.tier)
 provider_scores["h1_tier"] = provider_scores["composite_score"].apply(tier)
 
 # Verify

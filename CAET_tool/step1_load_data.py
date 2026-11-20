@@ -72,7 +72,7 @@ df["fraud_hcpcs_cat"] = df["HCPCS_Cd"].apply(tag_fraud_category)
 print(df["fraud_hcpcs_cat"].value_counts())
 print(df[["HCPCS_Cd", "HCPCS_Desc", "fraud_hcpcs_cat"]].head(10))
 # Step 9: Assign CMS improper payment rate as risk weight per category
-risk_weights = {
+raw_weights = {
     "SURGICAL_DRESSING": 0.576,
     "ORTHOTIC": 0.513,
     "CGM": 0.252,
@@ -81,7 +81,9 @@ risk_weights = {
     "OTHER": 0.100
 }
 
-df["category_risk_weight"] = df["fraud_hcpcs_cat"].map(risk_weights)
+# Divide by the highest weight so the top category scores at full strength (1.0)
+top_weight = max(raw_weights.values())
+df["category_risk_weight"] = df["fraud_hcpcs_cat"].map(raw_weights) / top_weight
 
 # Verify
 print(df[["HCPCS_Cd", "fraud_hcpcs_cat", "category_risk_weight"]].head(10))

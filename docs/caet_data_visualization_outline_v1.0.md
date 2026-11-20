@@ -32,7 +32,7 @@ Data Source
 Data were drawn from the CMS Medicare DME by Supplier and Service 2023
 dataset, comprising 463,784 claim-level records after signal
 processing (dme_with_signals.csv). Member-call data used in this study
-are simulated for demonstration (30 calls).
+are simulated for demonstration (41 calls).
 
 Design
 
@@ -75,9 +75,10 @@ Scoring Parameters
     H1 composite weights: member calls 0.35, upcoding 0.25, volume
     0.20, rental 0.10, geographic 0.10.
       Category risk weight (CMS improper payment rate, multiplies
-      upcoding, volume and rental points): surgical dressing 0.576,
-      orthotic 0.513, CGM 0.252, catheter 0.180, PAP/CPAP 0.125,
-      other 0.100.
+      upcoding, volume and rental points), each divided by the highest
+      (0.576) so the top category scores at full strength: surgical
+      dressing 1.000, orthotic 0.891, CGM 0.438, catheter 0.313,
+      PAP/CPAP 0.217, other 0.174.
       Upcoding: charge-to-allowed ratio at or above 11.50 (90th
       percentile) 60 points, at or above 29.78 (99th) 100 points.
       Volume: claims per beneficiary at or above 5.67 (90th) 60

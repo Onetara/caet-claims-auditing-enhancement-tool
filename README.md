@@ -38,18 +38,24 @@
 
 **What it provides**
 - Two risk-scoring models (H1 and H2) with tiered composite scores.
-- A member-call amplifier, run here on 30 simulated calls.
+- A member-call amplifier, run here on 41 simulated calls.
 - Charts, a Power BI dashboard, and a methodology document.
 
-**Results (full CMS 2023 run)**
+**Results**
+
+*Constant simulated set* (16 fake suppliers, two per tier for each hypothesis, fixed signal values, not CMS data)
+- 16 of 16 land in the expected tier, so every tier (LOW, MEDIUM, HIGH, CRITICAL) is reachable for H1 and H2.
+
+*Experimental run* (full CMS 2023 data)
 
 | Test | Signals alone | Signals plus simulated calls |
 |---|---|---|
-| H1, 59,592 suppliers | 0 HIGH or CRITICAL (top score 27.8) | 6 suppliers reach MEDIUM, 0 reach HIGH |
-| H2, 41 suppliers | 8 HIGH, 24 MEDIUM, 9 LOW (19.5% HIGH) | Of 7 catheter suppliers with calls: 5 HIGH, 2 MEDIUM |
+| H1, 59,592 suppliers | 0 HIGH or CRITICAL (top score 43.5) | 1 HIGH, 8 MEDIUM |
+| H2, 41 suppliers | 8 HIGH, 24 MEDIUM, 9 LOW (19.5% HIGH) | 11 HIGH, 22 MEDIUM, 8 LOW (26.8% HIGH) |
 
 - Calls move suppliers up a tier, which is what the amplifier is built to do.
-- Simulated calls cover 10 suppliers only, so these numbers show how the tool behaves, not real fraud rates.
+- Four top-units suppliers have simulated calls (billed at maximum units, members report not receiving supplies). Others with top units scores have no calls and stay at their billing-only tier.
+- Simulated calls cover 14 suppliers only, so these numbers show how the tool behaves, not real fraud rates.
 
 ## Foundation
 
@@ -70,7 +76,7 @@
 | `payment_delta` | Allowed amount minus Medicare payment | Gap between what was allowed and what was paid |
 | `geo_standardization_delta` | Medicare payment minus standardized amount | Regional price adjustment |
 | `fraud_hcpcs_cat` | HCPCS code (the item billed) grouped into a category | Dressing, orthotic, CGM, catheter, CPAP, or other |
-| `category_risk_weight` | Fixed CMS improper-payment-rate number per category | Multiplier on row scores. Dressings 0.576, orthotic 0.513, CGM 0.252, catheter 0.180, CPAP 0.125, other 0.100 |
+| `category_risk_weight` | Fixed CMS improper-payment-rate number per category | Multiplier on row scores, divided by the highest weight so the top category is 1.0. Dressings 1.000, orthotic 0.891, CGM 0.438, catheter 0.313, CPAP 0.217, other 0.174 |
 | `rental_ratio` | Rental rows divided by all rows for a supplier | Rental abuse signal |
 | `geo_score` | State and RUCA (urban or rural code) | High-risk states +30, urban +15, state outlier +20 |
 | `bundling_score` | Count and mix of catheter codes per supplier | H2 signal: 14 or more codes scores highest |
@@ -96,27 +102,44 @@
 | 12 | `step12_catheter_bundling_scorer.py` | Scores catheter bundling |
 | 13 | `step13_catheter_composite.py` | Scores units per claim, combines H2 signals, applies the override floor |
 | 15 | `step15_h2_test.py` | H2 test: hit rate against the 75% target |
-| 16 | `step16_member_call_integration.py` | Applies 30 simulated calls, re-scores H1 and H2 |
+| 16 | `step16_member_call_integration.py` | Applies 41 simulated calls, re-scores H1 and H2 |
+| 17 | `step17_tier_test_cases.py` | Constant simulated set: 16 fake suppliers, two per tier, expected vs actual tier |
 | check | `validate_caet.py` | Confirms row counts and score math |
-| shared | `caet_shared.py` | Shared call weights, H2 weights and cutoffs, override floor |
+| shared | `caet_shared.py` | Shared weights, tier bands, composite formulas, H2 cutoffs, override floor |
 | aid | `select_test_candidates.py` | Picks example suppliers for each tier |
 | aid | `step_check_rental_modifiers.py` | Lists rental-related columns in the data |
-| charts | `visuals/viz_01` to `viz_08` | Chart scripts (tiers, score spread, call impact, top 20, state map, bundling) |
+| charts | `visuals/viz_01` to `viz_12` | Chart scripts: tiers, score spread, call impact, top 20, state map, bundling and units, constant set, weights, top 10 catheter |
 
 **How to run**
 - Open a terminal in `CAET_tool/` and run the steps in the order shown above, ending with `validate_caet.py`.
 
 ## Featured Visuals
 
-![H1 Tier Distribution](visuals/viz_01_python.png)
+**Constant simulated set (every tier reachable)**
 
-![Before vs After Member Calls](visuals/viz_03_Python.png)
+![Constant Set Score Ladder](visuals/viz_09_constant_set_ladder.png)
 
-![Top 20 Highest-Risk Providers](visuals/viz_04_Python.png)
+**H1 General DME**
+
+![H1 Tier Distribution](visuals/viz_01_h1_tier_distribution.png)
+
+![Before vs After Member Calls](visuals/viz_03_h1_call_impact.png)
+
+![Top 20 Highest-Risk Providers](visuals/viz_04_h1_top20_providers.png)
 
 ![Geographic Risk Heatmap](visuals/viz_05_Python.png)
 
-![H2 Catheter Tier Distribution](visuals/viz_07_Python.png)
+**H2 Catheters**
+
+![H2 Catheter Tier Distribution](visuals/viz_07_h2_tier_distribution.png)
+
+![Bundling vs Units per Claim](visuals/viz_10_bundling_vs_units.png)
+
+![Top 10 Catheter Suppliers, Before vs After Calls](visuals/viz_12_h2_top10_calls.png)
+
+**Scoring rules**
+
+![Composite Score Weights](visuals/viz_11_composite_weights.png)
 
 ## Dashboard
 

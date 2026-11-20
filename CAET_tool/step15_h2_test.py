@@ -52,9 +52,22 @@ print(f"Hit Rate         : {hit_rate:.1%}")
 print(f"Threshold        : >= 75%")
 
 if hit_rate >= 0.75:
-    print("H2 PASSED")
+    print("Signals alone: target met")
 else:
-    print("H2 FAILED: review catheter scorer weights")
+    print("Signals alone: below target (member calls not applied)")
+
+# ── WITH MEMBER CALLS (run step16 first) ─────────────────────────────
+calls_file = BASE_DIR / "h2_with_calls.csv"
+if calls_file.exists():
+    wc = pd.read_csv(str(calls_file))
+    wc = wc[wc["state"].isin(HIGH_RISK_CATHETER_STATES)]
+    after = wc[wc["updated_tier"].isin(["HIGH", "CRITICAL"])]
+    print("\n=== WITH MEMBER CALLS (same test pool) ===")
+    print(wc["updated_tier"].value_counts())
+    print(f"High or Critical : {len(after)} / {len(wc)}")
+    print(f"Hit Rate         : {len(after) / len(wc):.1%}  (signals alone: {hit_rate:.1%})")
+else:
+    print("\nNo h2_with_calls.csv found: run step16 for the with-calls comparison.")
 
 # ── SAVE ─────────────────────────────────────────────────────────────
 results_df.to_csv(str(BASE_DIR / "h2_test_results.csv"), index=False)
