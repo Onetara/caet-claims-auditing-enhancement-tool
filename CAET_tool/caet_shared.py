@@ -67,14 +67,16 @@ def tier(score):
     return "LOW"
 
 
-# H1 composite from provider-level signal scores, each 0 to 100
+# Weighted sum of signal scores, each 0 to 100, shared by the H1 and H2 composites
+def _weighted_sum(weights, scores):
+    return sum(scores[name] * weight for name, weight in weights.items())
+
+
+# H1 composite from provider-level signal scores
 def h1_composite(upcoding, volume, rental, geo, calls):
-    """H1 composite from provider-level signal scores (each 0 to 100)."""
-    return (calls    * H1_WEIGHTS["member_call"] +
-            upcoding * H1_WEIGHTS["upcoding"]    +
-            volume   * H1_WEIGHTS["volume"]      +
-            rental   * H1_WEIGHTS["rental"]      +
-            geo      * H1_WEIGHTS["geographic"])
+    scores = {"member_call": calls, "upcoding": upcoding, "volume": volume,
+              "rental": rental, "geographic": geo}
+    return _weighted_sum(H1_WEIGHTS, scores)
 
 
 # ── H2 COMPOSITE WEIGHTS ─────────────────────────────────────────────
@@ -110,13 +112,8 @@ def apply_override_floor(composite, flags, geo_score):
     return composite
 
 
-# H2 composite from signal scores, each 0 to 100, with the override floor
+# H2 composite from signal scores, with the override floor
 def h2_composite(bundling, units, volume, upcoding, geo, calls, flags=""):
-    """H2 composite from signal scores (each 0 to 100), with the override floor."""
-    score = (bundling * H2_WEIGHTS["catheter_bundling"] +
-             units    * H2_WEIGHTS["units"]             +
-             calls    * H2_WEIGHTS["member_call"]       +
-             volume   * H2_WEIGHTS["volume"]            +
-             upcoding * H2_WEIGHTS["upcoding"]          +
-             geo      * H2_WEIGHTS["geographic"])
-    return apply_override_floor(score, flags, geo)
+    scores = {"catheter_bundling": bundling, "units": units, "member_call": calls,
+              "volume": volume, "upcoding": upcoding, "geographic": geo}
+    return apply_override_floor(_weighted_sum(H2_WEIGHTS, scores), flags, geo)
