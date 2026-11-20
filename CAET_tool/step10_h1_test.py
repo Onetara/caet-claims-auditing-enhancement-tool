@@ -34,6 +34,19 @@ if hit_rate >= 0.70:
 else:
     print("H1 FAILED: review scorer weights")
 
+# ── WITH MEMBER CALLS (run step16 first) ─────────────────────────────
+calls_file = BASE_DIR / "h1_with_calls.csv"
+if calls_file.exists():
+    with_calls = pd.read_csv(str(calls_file))
+    after = with_calls[with_calls["updated_tier"].isin(["HIGH", "CRITICAL"])]
+    after_rate = len(after) / len(with_calls)
+    print("\n=== WITH MEMBER CALLS ===")
+    print(with_calls["updated_tier"].value_counts())
+    print(f"High or Critical : {len(after):,} / {len(with_calls):,}")
+    print(f"Hit Rate         : {after_rate:.1%}  (baseline: {hit_rate:.1%})")
+else:
+    print("\nNo h1_with_calls.csv found: run step16 for the with-calls comparison.")
+
 # ── SAVE ─────────────────────────────────────────────────────────────
 results_df.to_csv(str(BASE_DIR / "h1_test_results.csv"), index=False)
 print("\nSaved: h1_test_results.csv")

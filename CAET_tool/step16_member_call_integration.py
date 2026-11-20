@@ -6,6 +6,7 @@ import pandas as pd
 from datetime import datetime
 
 from pathlib import Path
+from caet_shared import call_reason_weight, apply_override_floor
 BASE_DIR = Path(__file__).resolve().parent
 
 # ── CREATE SIMULATED MEMBER CALLS CSV ────────────────────────────────
@@ -98,14 +99,7 @@ calls_df.to_csv(
 print("Saved: member_calls.csv")
 print(calls_df.to_string(index=False))
 
-# ── CALL REASON WEIGHTS (from Step 8 scorer) ─────────────────────────
-CALL_REASON_WEIGHTS = {
-    "NO_DIAGNOSIS_MATCH_VALIDATED":  60,
-    "NO_CONSENT_VALIDATED":          55,
-    "NEVER_RECEIVED_VALIDATED":      50,
-    "WRONG_ITEM_VALIDATED":          40,
-    "RENTAL_NOT_RETURNED_VALIDATED": 40,
-}
+# Call reason weights live in caet_shared.py (single source)
 
 # ── COMPUTE MEMBER CALL SCORE PER NPI ────────────────────────────────
 def member_call_score(npi_calls):
@@ -113,7 +107,7 @@ def member_call_score(npi_calls):
     distinct_members = npi_calls["member_id"].nunique()
 
     for _, call in npi_calls.iterrows():
-        weight = CALL_REASON_WEIGHTS.get(call["call_reason_code"], 20)
+        weight = call_reason_weight(call["call_reason_code"])
         score += weight
 
     if distinct_members >= 3:
@@ -186,6 +180,11 @@ h2["composite_with_calls"] = (
     h2["volume_score"]      * 0.15 +
     h2["upcoding_score"]    * 0.10 +
     h2["geo_score"]         * 0.10
+)
+# Same override floor as step13, so tiers are comparable before and after calls
+h2["composite_with_calls"] = h2.apply(
+    lambda r: apply_override_floor(r["composite_with_calls"], r["flags"], r["geo_score"]),
+    axis=1
 ).round(2)
 
 h2["updated_tier"] = h2["composite_with_calls"].apply(tier)

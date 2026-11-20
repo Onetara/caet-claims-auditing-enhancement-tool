@@ -4,6 +4,11 @@
 
 import pandas as pd
 from pathlib import Path
+from caet_shared import (
+    CATH_CHARGE_MAX_CUTOFF, CATH_CHARGE_MEAN_CUTOFF,
+    CATH_CPB_MAX_CUTOFF, CATH_CPB_MEAN_CUTOFF, CATH_TOTAL_CLAIMS_CUTOFF,
+    apply_override_floor,
+)
 BASE_DIR = Path(__file__).resolve().parent
 
 # ── LOAD ────────────────────────────────────────────────────────────
@@ -29,9 +34,9 @@ def volume_score(provider_rows):
     if cpb.empty:
         return 0.0
     score = 0.0
-    if cpb.max()  > 9.12: score += 40
-    if cpb.mean() > 5.35: score += 25
-    if provider_rows["Tot_Suplr_Clms"].sum() > 50000: score += 20
+    if cpb.max()  > CATH_CPB_MAX_CUTOFF: score += 40
+    if cpb.mean() > CATH_CPB_MEAN_CUTOFF: score += 25
+    if provider_rows["Tot_Suplr_Clms"].sum() > CATH_TOTAL_CLAIMS_CUTOFF: score += 20
     return min(score, 100.0)
 
 
@@ -40,8 +45,8 @@ def upcoding_score(provider_rows):
     if ratios.empty:
         return 0.0
     score = 0.0
-    if ratios.max()  > 4.14: score += 50
-    if ratios.mean() > 1.52: score += 30
+    if ratios.max()  > CATH_CHARGE_MAX_CUTOFF: score += 50
+    if ratios.mean() > CATH_CHARGE_MEAN_CUTOFF: score += 30
     return min(score, 100.0)
 
 
@@ -89,12 +94,9 @@ for npi in candidate_npis:
         (g_score * WEIGHTS["geographic"])
     )
 
-    # Override floor rule: see Step 14 in outline
+    # Override floor rule (see caet_shared.apply_override_floor)
     flags = str(bundling_row["flags"].values[0])
-    if ("EXTREME_CATHETER_BUNDLING" in flags) and (g_score >= 30):
-        composite = max(composite, 65.0)
-    elif flags.count("|") >= 1 and ("HIGH_CATHETER_BUNDLING" in flags):
-        composite = max(composite, 42.0)
+    composite = apply_override_floor(composite, flags, g_score)
 
     composite = round(composite, 2)
 

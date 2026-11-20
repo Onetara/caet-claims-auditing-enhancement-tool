@@ -1,6 +1,7 @@
 import pandas as pd
 
 from pathlib import Path
+from caet_shared import CALL_REASON_WEIGHTS, CALL_COUNT_COLUMNS
 BASE_DIR = Path(__file__).resolve().parent
 
 # Load the foundation file
@@ -9,11 +10,8 @@ df = pd.read_csv(str(BASE_DIR / "dme_with_signals.csv"))
 # Step 8: Member Call Scorer (PLACEHOLDER MODE: v2.8)
 # Scope: subjective signals only. Claim-AI signals excluded per CAET scope.
 CALL_WEIGHTS = {
-    "no_diagnosis_match_reported_count": 60,  # NEW v2.8: phantom billing
-    "no_consent_count":                  55,
-    "never_received_count":              50,
-    "wrong_item_count":                  40,
-    "rental_not_returned_count":         40
+    CALL_COUNT_COLUMNS[reason]: weight
+    for reason, weight in CALL_REASON_WEIGHTS.items()
 }
 
 # Initialize all call columns to 0 (placeholder, real data plugs in here)

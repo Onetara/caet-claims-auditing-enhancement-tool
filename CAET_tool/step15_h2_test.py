@@ -20,7 +20,7 @@ filtered = h2_results[
 print(f"Total catheter candidates        : {len(h2_results):,}")
 print(f"In high-risk catheter states     : {len(filtered):,}")
 
-# ── TEST SAMPLE OF 41 ────────────────────────────────────────────────
+# ── TEST POOL: ALL PROVIDERS IN THE HIGH-RISK STATES ─────────────────
 test_sample = filtered
 print(f"Testing full candidate pool: {len(test_sample)}")
 results     = []

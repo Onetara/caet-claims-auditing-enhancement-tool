@@ -5,6 +5,7 @@
 import pandas as pd
 
 from pathlib import Path
+from caet_shared import call_reason_weight, apply_override_floor
 BASE_DIR = Path(__file__).resolve().parent
 
 BASE = str(BASE_DIR) + "/"
@@ -45,17 +46,9 @@ print("=" * 70)
 print("CHECK 2: KNOWN EXAMPLES (hand-computed vs. actual file)")
 print("=" * 70)
 
-WEIGHTS = {
-    "NO_DIAGNOSIS_MATCH_VALIDATED":  60,
-    "NO_CONSENT_VALIDATED":          55,
-    "NEVER_RECEIVED_VALIDATED":      50,
-    "WRONG_ITEM_VALIDATED":          40,
-    "RENTAL_NOT_RETURNED_VALIDATED": 40,
-}
-
 def expected_call_score(npi):
     rows = calls[calls["provider_npi"] == npi]
-    raw = sum(WEIGHTS.get(r, 20) for r in rows["call_reason_code"])
+    raw = sum(call_reason_weight(r) for r in rows["call_reason_code"])
     n_distinct = rows["member_id"].nunique()
     mult = 1.5 if n_distinct >= 3 else (1.25 if n_distinct == 2 else 1.0)
     return min(raw * mult, 100)
@@ -101,12 +94,13 @@ for _, row in sample_h1.iterrows():
 
 sample_h2 = h2_wc[h2_wc["member_call_score"] > 0].head(5)
 for _, row in sample_h2.iterrows():
-    recomputed = round(
+    weighted = (
         row["bundling_score"]    * 0.40 +
         row["member_call_score"] * 0.25 +
         row["volume_score"]      * 0.15 +
         row["upcoding_score"]    * 0.10 +
-        row["geo_score"]         * 0.10, 2)
+        row["geo_score"]         * 0.10)
+    recomputed = round(apply_override_floor(weighted, row["flags"], row["geo_score"]), 2)
     check(f"H2 NPI {row['npi']} composite_with_calls reconciles",
           abs(recomputed - row["composite_with_calls"]) < 0.02,
           f"recomputed {recomputed}, file has {row['composite_with_calls']}")

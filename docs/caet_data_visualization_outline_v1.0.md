@@ -9,7 +9,7 @@ Abstract
 The Claims Auditing Enhancement Tool (CAET) is a fraud risk-scoring
 system developed to identify potentially fraudulent durable medical
 equipment (DME) claims within Medicare data. Using the Centers for
-Medicare & Medicaid Services (CMS) 2023 DME Supplier/Provider dataset,
+Medicare & Medicaid Services (CMS) 2023 DME by Supplier and Service dataset,
 two hypotheses were tested: general DME fraud detection (H1) and
 intermittent catheter fraud detection (H2). Statistical signal
 detection combined with a member-call verification amplifier was used
@@ -29,9 +29,10 @@ Method
 
 Data Source
 
-Data were drawn from the CMS Medicare DME Supplier/Provider 2023
+Data were drawn from the CMS Medicare DME by Supplier and Service 2023
 dataset, comprising 463,784 claim-level records after signal
-processing (dme_with_signals.csv).
+processing (dme_with_signals.csv). Member-call data used in this study
+are simulated for demonstration (30 calls).
 
 Design
 
@@ -51,7 +52,9 @@ Two hypotheses were defined and tested independently:
     category risk weight and uses cutoffs pooled across all equipment
     types. Both dampen catheter signals, so catheter fraud can go
     undetected relative to other DME categories. H2 therefore uses
-    catheter-specific cutoffs and adds catheter bundling signals.
+    catheter-specific cutoffs and adds catheter bundling signals. This
+    rationale draws on the author's claims-adjustment experience and
+    CMS data.
 
 Procedure
 
@@ -62,6 +65,49 @@ population, and (b) statistical signals combined with member-call
 verification data as a risk amplifier. For H2, composite scores were
 generated for the 206 catheter suppliers, and the 41 in the five
 high-risk states were tested using the combined scoring approach.
+
+Scoring Parameters
+
+    Tiers (composite score, 0 to 100): LOW below 40, MEDIUM 40 to 59,
+    HIGH 60 to 79, CRITICAL 80 and above. Provider score = highest
+    row score for each signal.
+
+    H1 composite weights: member calls 0.35, upcoding 0.25, volume
+    0.20, rental 0.10, geographic 0.10.
+      Category risk weight (CMS improper payment rate, multiplies
+      upcoding, volume and rental points): surgical dressing 0.576,
+      orthotic 0.513, CGM 0.252, catheter 0.180, PAP/CPAP 0.125,
+      other 0.100.
+      Upcoding: charge-to-allowed ratio at or above 11.50 (90th
+      percentile) 60 points, at or above 29.78 (99th) 100 points.
+      Volume: claims per beneficiary at or above 5.67 (90th) 60
+      points, at or above 8.80 (99th) 100 points.
+      Rental: provider rental ratio at its 90th / 99th percentile,
+      60 / 100 points.
+      Geographic: CA, FL, TX, NY, IL +30, urban +15 (in those states),
+      state volume outlier (above state 95th percentile) +20. Cap 100.
+
+    H2 composite weights: catheter bundling 0.40, member calls 0.25,
+    volume 0.15, upcoding 0.10, geographic 0.10.
+      Bundling: 14+ catheter codes +55, 8 to 13 +35, 5 to 7 +15;
+      straight and coude codes (A4351, A4352) billed together +30;
+      accessories without a primary code +25; Oklahoma with more than
+      100 catheter claims +20. Cap 100.
+      Volume: highest claims per beneficiary above 9.12 +40, average
+      above 5.35 +25, total claims above 50,000 +20.
+      Upcoding: highest charge-to-allowed ratio above 4.14 +50,
+      average above 1.52 +30.
+      Geographic: OK, FL, NY, TX, GA +30; OK +10 more.
+      Override floor: a provider with 14+ catheter codes and a
+      geographic score of 30 or more has a minimum score of 65
+      (HIGH). A provider with HIGH bundling and at least one more
+      flag has a minimum of 42 (MEDIUM). The floor applies before and
+      after member calls.
+
+    Member-call points per validated call: no diagnosis match 60, no
+    consent 55, never received 50, wrong item 40, rental not returned
+    40. Multiplier by distinct members: 2 members x1.25, 3 or more
+    x1.50. Cap 100.
 
 Results
 
@@ -94,7 +140,7 @@ charts, with Power BI used for the interactive dashboard.
 References
 
 Centers for Medicare & Medicaid Services. (2023). Medicare durable
-    medical equipment, devices & supplies by referring provider and
-    service [(CMS) 2023 DME Supplier/Provider dataset]. U.S. Department of Health and Human Services.
+    medical equipment, devices & supplies: By supplier and service
+    [Data set]. U.S. Department of Health and Human Services.
 
 Published Date: 08/07/2026
