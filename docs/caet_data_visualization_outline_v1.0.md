@@ -42,9 +42,10 @@ Two hypotheses were defined and tested independently:
     threshold for classification as high risk.
 
     H2 (Intermittent Catheter Fraud Detection). Composite risk scoring
-    was applied to a candidate pool of 41 providers meeting
-    catheter-specific criteria, with a 75% threshold for
-    classification as high risk.
+    was applied to the 206 suppliers billing 8 or more distinct
+    catheter codes. The 41 of these located in the five high-risk
+    catheter states (OK, FL, NY, TX, GA) formed the test pool, with a
+    75% threshold for classification as high risk.
 
     Rationale for H2. General DME scoring multiplies each claim by a
     category risk weight and uses cutoffs pooled across all equipment
@@ -59,8 +60,8 @@ composite score. Two scoring conditions were tested for H1: (a)
 statistical signals alone, applied to the full 59,592-provider
 population, and (b) statistical signals combined with member-call
 verification data as a risk amplifier. For H2, composite scores were
-generated for the full 41-provider candidate pool using the combined
-scoring approach.
+generated for the 206 catheter suppliers, and the 41 in the five
+high-risk states were tested using the combined scoring approach.
 
 Results
 
@@ -70,7 +71,7 @@ scored in the HIGH or CRITICAL risk tiers. This indicated that
 member-call data functions as a required amplifier of the composite
 score rather than an optional enhancement.
 
-H2. Testing the full 41-provider candidate pool with the combined
+H2. Testing the full 41-provider test pool with the combined
 scoring approach yielded the following tier distribution: 8 providers
 (19.5%) scored HIGH, 24 providers scored MEDIUM, and 9 providers
 scored LOW. This result fell below the 75% pass threshold set for the
