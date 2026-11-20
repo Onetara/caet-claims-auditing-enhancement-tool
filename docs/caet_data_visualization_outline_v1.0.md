@@ -46,6 +46,12 @@ Two hypotheses were defined and tested independently:
     catheter-specific criteria, with a 75% threshold for
     classification as high risk.
 
+    Rationale for H2. General DME scoring multiplies each claim by a
+    category risk weight and uses cutoffs pooled across all equipment
+    types. Both dampen catheter signals, so catheter fraud can go
+    undetected relative to other DME categories. H2 therefore uses
+    catheter-specific cutoffs and adds catheter bundling signals.
+
 Procedure
 
 For each hypothesis, provider-level signals were aggregated into a

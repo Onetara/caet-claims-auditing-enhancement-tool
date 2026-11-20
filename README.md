@@ -7,6 +7,7 @@
 - Asks: Can statistical fraud signals alone separate legitimate
   high-volume DME providers from fraud rings?
 - New insight: Applying future member claims denial accuracy with integrated caller input that feeds the AI screen after call and case completion.
+- Why H2: catheter fraud can go undetected in general DME scoring, because category weights and pooled cutoffs dampen it. H2 uses catheter-specific cutoffs and bundling signals.
 - Provides: two risk-scoring models (H1 general DME, H2 intermittent
   catheters), tiered composite scores, a member-call amplifier
   (simulated calls), charts, and a Power BI dashboard.
@@ -24,6 +25,8 @@
   - Geography: high-risk states, state volume outliers
   - Rental ratio: rental abuse signal
   - Catheter bundling: H2-specific signal
+  - Category risk weight: CMS improper-payment-rate multiplier; can mask low-weight categories like catheters in H1
+  - Catheter-specific cutoffs: H2 thresholds, used to avoid that masking
   - Member-call score: complaint-based amplifier
   - Composite score and tiers: LOW <40, MEDIUM 40, HIGH 60, CRITICAL 80
 
