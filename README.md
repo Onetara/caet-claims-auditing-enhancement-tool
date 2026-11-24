@@ -36,6 +36,12 @@
 - Claims show what was billed. Only member calls show what was received.
 - Basis: the author's claims-adjustment experience and CMS data.
 
+**Thesis: phantom billing and medical necessity fraud**
+- **Definition:** claims are billed at the correct contracted or fee-schedule rate, but the patient never ordered, received or needed the item.
+- **Why payment checks miss it:** the amount is accurate, so expected-versus-actual payment models see nothing wrong.
+- **Secondary-payer gap (hypothesis):** when Medicare pays first, a secondary commercial payer may accept the crossover claim without a separate prior authorization. Medicare's payment then acts as an implicit validation, and neither payer independently checks necessity.
+- **CAET controls:** member calls (simulated here) and peer-based utilization signals (units per claim, volume, bundling).
+
 **What it provides**
 - Two risk-scoring models (H1 and H2) with tiered composite scores.
 - A member-call amplifier, run here on 41 simulated calls.
@@ -56,6 +62,15 @@
 - Calls move suppliers up a tier, which is what the amplifier is built to do.
 - Four top-units suppliers have simulated calls (billed at maximum units, members report not receiving supplies). Others with top units scores have no calls and stay at their billing-only tier.
 - Simulated calls cover 14 suppliers only, so these numbers show how the tool behaves, not real fraud rates.
+
+## Future Work
+
+- Add crossover and secondary-payer claim data, which public CMS data does not include.
+- Add a signal for suppliers with high catheter utilization and mostly crossover claims.
+- Test whether Medicare-paid claims pass secondary review at a different rate than other claims.
+- Add a diagnosis-to-item fit signal, which needs diagnosis data that the CMS supplier file does not carry.
+- Add plan-level checks for eligibility, authorization and frequency limits.
+- Add an optional payment-integrity extension that validates contract and fee-schedule amounts, kept separate from the fraud track.
 
 ## Foundation
 
